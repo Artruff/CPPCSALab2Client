@@ -1,6 +1,7 @@
 CC = g++
 CFLAGS = -std=c++11 -Wall
-TARGET = myprogram
+ODIR = ./usr/bin/
+TARGET = $(ODIR)client
 SRCS = CPPCSALab2Client.cpp MyClient.cpp
 OPTS_FOR_TEST=-lcheck -lpthread -lrt -lsubunit -lm
 HEADERS_DIR = hv
