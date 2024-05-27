@@ -2,6 +2,7 @@ CC = g++
 CFLAGS = -std=c++11 -Wall
 TARGET = myprogram
 SRCS = CPPCSALab2Client.cpp MyClient.cpp
+OPTS_FOR_TEST=-lcheck -lpthread -lrt -lsubunit -lm
 HEADERS_DIR = hv
 HEADERS = $(wildcard $(HEADERS_DIR)/*.h)
 OBJS = $(SRCS:.cpp=.o)
@@ -13,6 +14,9 @@ $(TARGET): $(OBJS)
 
 %.o: %.cpp $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+tets:
+	$(CC) $(CFLAGS) Test.cpp MyClient.cpp -o ./test $(OPTS_FOR_TEST)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
