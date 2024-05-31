@@ -1,0 +1,19 @@
+cmake_minimum_required(VERSION 3.12)
+project(my_project)
+
+set(CMAKE_CXX_STANDARD 17)
+
+# Add your source files here
+set(SOURCES main.cpp)
+
+# Add any necessary include directories here
+include_directories(include)
+
+# Add any necessary libraries here
+find_package(Boost 1.76.0 REQUIRED COMPONENTS system)
+
+# Create the executable target
+add_executable(my_project ${SOURCES})
+
+# Link the necessary libraries
+target_link_libraries(my_project PRIVATE Boost::system)
