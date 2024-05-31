@@ -15,7 +15,5 @@ jobs:
         compiler: 'g++'
 
     - name: Build
-      run: |
-        make all
-      run: |
-        dpkg-deb --build package
+    - run: make all
+    - run: dpkg-deb --build package

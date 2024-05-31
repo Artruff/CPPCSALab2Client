@@ -1,25 +1,33 @@
+# Makefile to build the project
+
 CC = g++
-CFLAGS = -std=c++11 -Wall
-ODIR = ./usr/bin/
-TARGET = $(ODIR)client
-SRCS = CPPCSALab2Client.cpp MyClient.cpp
-OPTS_FOR_TEST=-lcheck -lpthread -lrt -lsubunit -lm
-HEADERS_DIR = hv
-HEADERS = $(wildcard $(HEADERS_DIR)/*.h)
-OBJS = $(SRCS:.cpp=.o)
+CFLAGS = -Wall -I hv
+LDFLAGS = -L lib -lCatch2
+LIBS = -lhv
+OUTDIR = build/
+TESTDIR = test/
+PACKAGEDIR = package/usr/bin/
 
-all: $(TARGET)
+all: clean CPPCSALab2Client Test
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+CPPCSALab2Client: CPPCSALab2Client.o MyClient.o
+	mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(OUTDIR)CPPCSALab2Client CPPCSALab2Client.o MyClient.o $(LIBS)
+	cp $(OUTDIR)CPPCSALab2Client $(PACKAGEDIR)CPPCSALab2Client
 
-%.o: %.cpp $(HEADERS)
-	$(CC) $(CFLAGS) -c $< -o $@
+CPPCSALab2Client.o: src/CPPCSALab2Client.cpp
+	$(CC) $(CFLAGS) -c src/CPPCSALab2Client.cpp
 
-tets:
-	$(CC) $(CFLAGS) Test.cpp MyClient.cpp -o ./test $(OPTS_FOR_TEST)
+MyClient.o: src/MyClient.cpp
+	$(CC) $(CFLAGS) -c src/MyClient.cpp
+
+Test: Test.o
+	mkdir -p $(TESTDIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TESTDIR)Test Test.o $(LIBS)
+
+Test.o: src/Test.cpp
+	$(CC) $(CFLAGS) -c src/Test.cpp
 
 clean:
-	rm -f $(OBJS) $(TARGET)
-
-.PHONY: all clean
+	rm -f *.o *.deb $(OUTDIR)CPPCSALab2Client $(PACKAGEDIR)CPPCSALab2Client $(TESTDIR)Test
+	rmdir -p $(OUTDIR) $(TESTDIR)
