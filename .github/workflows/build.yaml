@@ -1,19 +1,11 @@
 name: C++ Build
-
 on: [push]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up C++ build environment
-      uses: actions/setup-cpp@v1
-      with:
-        compiler: 'g++'
-
-    - name: Build
-    - run: make all
-    - run: dpkg-deb --build package
+      - name: build
+        uses: actions/checkout@v3
+      - run: make all
+      - run: sudo apt-get install g++ clang make cmake libboost-all-dev
+      - run: dpkg-deb --build package
