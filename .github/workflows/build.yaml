@@ -5,7 +5,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: build
-        uses: actions/checkout@v3
       - run: make all
       - run: sudo apt-get install g++ clang make cmake libboost-all-dev
       - run: dpkg-deb --build package
