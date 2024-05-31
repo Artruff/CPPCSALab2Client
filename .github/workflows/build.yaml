@@ -9,14 +9,7 @@ jobs:
           sudo apt-get install g++ clang make cmake libboost-all-dev
 
       - name: Build
-        run: |
-          g++ -Wall -I hv -c src/CPPCSALab2Client.cpp
-          g++ -Wall -I hv -c src/MyClient.cpp
-          g++ -Wall -I hv -L lib -lCatch2 -o build/CPPCSALab2Client CPPCSALab2Client.o MyClient.o -lhv
-          cp build/CPPCSALab2Client package/usr/bin/CPPCSALab2Client
-          g++ -Wall -I hv -c src/Test.cpp
-          mkdir -p test/
-          g++ -Wall -I hv -L lib -lCatch2 -o test/Test Test.o -lhv
+        run: make all
 
       - name: Create package
         run: dpkg-deb --build package
