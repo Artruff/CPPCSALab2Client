@@ -11,6 +11,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install g++ clang cmake libboost-all-dev
+          sudo apt-get install catch2 -y
 
       - name: Build
         run: |
