@@ -10,7 +10,7 @@ jobs:
 
       - name: Build
         run: |
-          pwd
+          ls
           make all
 
       - name: Create package
