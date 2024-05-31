@@ -4,14 +4,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v3
+      
       - name: Install dependencies
         run: |
-          sudo apt-get install g++ clang make cmake libboost-all-dev
+          sudo apt-get update
+          sudo apt-get install g++ clang cmake libboost-all-dev
 
       - name: Build
         run: |
-          ls
-          make all
+          mkdir build
+          cd build
+          cmake ..
+          make
 
       - name: Create package
-        run: dpkg-deb --build package
+        run: |
+          cd ..
+          dpkg-deb --build package
