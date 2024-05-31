@@ -11,7 +11,7 @@ add_executable(CPPCSALab2Client
     src/MyClient.cpp
 )
 
-target_link_libraries(CPPCSALab2Client hv)
+target_link_libraries(CPPCSALab2Client ${CMAKE_SOURCE_DIR}/lib/libhv.a)
 
 set_target_properties(CPPCSALab2Client
     PROPERTIES
@@ -27,7 +27,7 @@ add_executable(Test
     src/Test.cpp
 )
 
-target_link_libraries(Test Catch2 hv)
+target_link_libraries(Test ${CMAKE_SOURCE_DIR}/lib/libCatch2.a ${CMAKE_SOURCE_DIR}/lib/libhv.a)
 
 set_target_properties(Test
     PROPERTIES
