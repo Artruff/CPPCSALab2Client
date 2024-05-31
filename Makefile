@@ -30,4 +30,4 @@ Test.o: src/Test.cpp
 
 clean:
 	rm -f *.o *.deb $(OUTDIR)CPPCSALab2Client $(PACKAGEDIR)CPPCSALab2Client $(TESTDIR)Test
-	rmdir -p $(OUTDIR) $(TESTDIR)
+	rm -rf $(OUTDIR) $(TESTDIR)
