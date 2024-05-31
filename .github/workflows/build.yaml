@@ -9,7 +9,7 @@ jobs:
           sudo apt-get install g++ clang make cmake libboost-all-dev
 
       - name: Build
-        run: make all
+        run: make
 
       - name: Create package
         run: dpkg-deb --build package
