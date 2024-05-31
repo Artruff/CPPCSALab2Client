@@ -23,4 +23,5 @@ jobs:
       - name: Create package
         run: |
           cd ..
+          pwd
           dpkg-deb --build package
