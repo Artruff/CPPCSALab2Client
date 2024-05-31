@@ -4,7 +4,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: build
-      - run: make all
-      - run: sudo apt-get install g++ clang make cmake libboost-all-dev
-      - run: dpkg-deb --build package
+      - name: Install dependencies
+        run: |
+          sudo apt-get install g++ clang make cmake libboost-all-dev
+      - name: Build
+        run: make all
+      - name: Create package
+        run: dpkg-deb --build package
