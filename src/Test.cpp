@@ -41,7 +41,7 @@ TEST_CASE("test_change_user_data") {
 
 TEST_CASE("test_all_users") {
     MyClient client;
-    auto ptr = client.AllUsers("");
+    auto ptr = client.ScoreTable("");
     REQUIRE(ptr != nullptr);
     delete ptr;
 }

@@ -2,17 +2,18 @@
 
 CC = g++
 CFLAGS = -Wall -I hv
-LDFLAGS = -L lib -lCatch2
-LIBS = -lhv
+LDFLAGS = -L lib
+LIBS = -lhv -ltetris -lCatch2
 OUTDIR = build/
 TESTDIR = test/
 PACKAGEDIR = package/usr/bin/
+NCURSES=-lncurses
 
 all: clean CPPCSALab2Client Test
 
 CPPCSALab2Client: CPPCSALab2Client.o MyClient.o
 	mkdir -p $(OUTDIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(OUTDIR)CPPCSALab2Client CPPCSALab2Client.o MyClient.o $(LIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(OUTDIR)CPPCSALab2Client CPPCSALab2Client.o MyClient.o $(LIBS) $(NCURSES)
 	cp $(OUTDIR)CPPCSALab2Client $(PACKAGEDIR)CPPCSALab2Client
 
 CPPCSALab2Client.o: src/CPPCSALab2Client.cpp

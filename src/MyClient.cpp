@@ -1,4 +1,3 @@
-#pragma once
 #include <string>
 #include <map>
 #include <vector>
@@ -16,20 +15,17 @@ typedef struct UserStruct
 {
 	std::string login;
 	std::string password;
+	int score;
 	Roles role;
 
 	bool operator==(const UserStruct& other) const
 	{
-		return login == other.login && password == other.password && role == other.role;
+		return login == other.login;
 	}
 
 	bool operator<(const UserStruct& other) const
 	{
-		if (login != other.login)
-			return login < other.login;
-		if (password != other.password)
-			return password < other.password;
-		return role < other.role;
+		return login < other.login;
 	}
 } User;
 
@@ -150,9 +146,40 @@ public:
 		return nullptr;
 	}
 
-	std::vector<User>* AllUsers(const std::string& key) {
+	std::map<std::string, std::string>* ChangeUserScore(const std::string& key, const std::string& login, int score) {
 		try {
-			char url[] = "http://127.0.0.1:8080/users";
+			char url[] = "http://127.0.0.1:8080/score";
+			json data = {
+				{"login", login},
+				{"score", score},
+				{"key", key}
+			};
+
+			std::string json_data = data.dump();
+			http_headers headers;
+			headers["Content-Type"] = "application/json";
+			auto response = requests::post(url, json_data, headers);
+
+			if (response != NULL) {
+				json response_data = json::parse(response->body.c_str());
+				if (response->body[0] == 'n')
+					return nullptr;
+				return new std::map<std::string, std::string>(response_data.get<std::map<std::string, std::string>>());
+			}
+			else {
+				return nullptr;
+			}
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Exception caught: " << e.what() << std::endl;
+			return nullptr;
+		}
+		return nullptr;
+	}
+
+	std::vector<User>* ScoreTable(const std::string& key, Roles role = Roles::UserRole) {
+		try {
+			char url[] = "http://127.0.0.1:8080/table_score";
 			json data = {
 				{"key", key}
 			};
@@ -170,7 +197,8 @@ public:
 					for (const auto& item : user_array) {
 						User user{
 							item["login"].get<std::string>(),
-							item["password"].get<std::string>(),
+							role == Roles::AdminRole?item["password"].get<std::string>() : "",
+							item["score"].get<int>(),
 							(Roles)item["role"].get<int>()
 						};
 						users.push_back(user);

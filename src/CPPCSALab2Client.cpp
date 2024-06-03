@@ -1,15 +1,17 @@
 ﻿#include "MyClient.cpp"
 #include <iostream>
 #include <string>
+#include "../hv/s21_tetris_game_part.h"
 
 enum Step
 {
-    Start,
+    StartStep,
     Authorization,
     Registration,
     AdminStep,
     AddNewUser,
     ChangeUserData,
+    ChangeUserScore,
     DeleteUserData,
     UserStep,
     Exit
@@ -61,7 +63,7 @@ Step AuthorizationMenu()
 
         if (login == "0")
         {
-            return Start;
+            return StartStep;
         }
 
         std::cout << "Input password:" << std::endl;
@@ -113,7 +115,7 @@ Step RegistrationMenu()
 
         if (login == "0")
         {
-            return Start;
+            return StartStep;
         }
 
         std::cout << "Input password:" << std::endl;
@@ -146,9 +148,11 @@ Step RegistrationMenu()
 
 Step UserMenu()
 {
-    std::cout << "User: " << user.login << std::endl;
+    std::cout << "User: " << user.login << " hi-score: " << user.score << std::endl;
     std::cout << "1. Change user data" << std::endl;
-    std::cout << "2. Delete user data" << std::endl;
+    std::cout << "2. Get score table" << std::endl;
+    std::cout << "3. Start game" << std::endl;
+    std::cout << "4. Delete user data" << std::endl;
     std::cout << "0. Exit" << std::endl;
 
     while (true)
@@ -158,13 +162,41 @@ Step UserMenu()
 
         if (input == "0")
         {
-            return Start;
+            return StartStep;
         }
         else if (input == "1")
         {
             return ChangeUserData;
         }
         else if (input == "2")
+        {
+            std::vector<User>* response = client.ScoreTable(key);
+            if (response != nullptr && !response->empty())
+            {
+                for (const User& user : (*response))
+                {
+                    std::cout << user.login <<  " " << user.role << " " << user.score << std::endl;
+                }
+            }
+            if (response != nullptr)
+                delete response;
+        }
+        else if (input == "3")
+        {
+            int score = start_game();
+            endwin();
+            refresh();
+            std::cout << "new score" << std::endl;
+            //int score = 0;
+            std::map<std::string, std::string>* response = client.ChangeUserScore(key, user.login, score);
+            if (response != nullptr && response->count("message") > 0)
+            {
+                std::cout << "Invalid login. Please try again." << std::endl;
+                std::cout << (*response)["message"] << std::endl;
+            }
+            system("clear");
+        }
+        else if (input == "4")
         {
             return DeleteUserData;
         }
@@ -178,10 +210,11 @@ Step UserMenu()
 Step AdminMenu()
 {
     std::cout << "Admin: " << user.login << std::endl;
-    std::cout << "1. All users" << std::endl;
+    std::cout << "1. All scores" << std::endl;
     std::cout << "2. Change users" << std::endl;
-    std::cout << "3. Add user" << std::endl;
-    std::cout << "4. Delete user" << std::endl;
+    std::cout << "3. Change score data" << std::endl;
+    std::cout << "4. Add user" << std::endl;
+    std::cout << "5. Delete user" << std::endl;
     std::cout << "0. Exit" << std::endl;
 
     while (true)
@@ -191,18 +224,18 @@ Step AdminMenu()
 
         if (input == "0")
         {
-            return Step::Start;
+            return Step::StartStep;
         }
 
         if(input == "1")
         {
-            std::vector<User>* response = client.AllUsers(key);
+            std::vector<User>* response = client.ScoreTable(key);
 
             if (response != nullptr && !response->empty())
             {
                 for (const User& user : (*response))
                 {
-                    std::cout << user.login << " " << user.password << " " << user.role << std::endl;
+                    std::cout << user.login << " " << user.password << " " << user.role << " " << user.score << std::endl;
                 }
             }
             if (response != nullptr)
@@ -210,9 +243,11 @@ Step AdminMenu()
         }
         else if(input == "2")
             return Step::ChangeUserData;
-        else if (input == "3")
-            return Step::AddNewUser;
+        else if(input == "3")
+            return Step::ChangeUserScore;
         else if (input == "4")
+            return Step::AddNewUser;
+        else if (input == "5")
             return Step::DeleteUserData;
         else
         {
@@ -244,7 +279,7 @@ Step ChangeUserMenu()
 
         if (old_login == "0")
         {
-            return Step::Start;
+            return Step::StartStep;
         }
 
         std::cout << "Input new login:" << std::endl;
@@ -295,6 +330,50 @@ Step ChangeUserMenu()
     }
 }
 
+Step ChangeScoreMenu()
+{
+    std::string login;
+
+    std::cout << "Input login:" << std::endl;
+    std::cout << "0. back" << std::endl;
+
+    while (true)
+    {
+        if (user.role == Roles::UserRole)
+        {
+            login = user.login;
+        }
+        else
+        {
+            std::cin >> login;
+        }
+
+        if (login == "0")
+        {
+            return Step::StartStep;
+        }
+
+        std::cout << "Input new score:" << std::endl;
+        int score;
+        std::cin >> score;
+
+        std::cout << "Process change..." << std::endl;
+        std::map<std::string, std::string>* response = client.ChangeUserScore(key, login, score);
+
+        if (response != nullptr && response->count("message") > 0)
+        {
+            std::cout << "Invalid login. Please try again." << std::endl;
+            std::cout << (*response)["message"] << std::endl;
+        }
+        else
+        {
+            if (response != nullptr)
+                delete response;
+            return Step::AdminStep;
+        }
+    }
+}
+
 Step AddNewUserMenu()
 {
     std::cout << "Input login:" << std::endl;
@@ -315,9 +394,15 @@ Step AddNewUserMenu()
         std::cin >> password;
 
         std::cout << "Input role:" << std::endl;
-        int roleInput;
+        std::string roleInput;
         std::cin >> roleInput;
-        Roles role = static_cast<Roles>(roleInput);
+        Roles role;
+        if(roleInput == "1" || roleInput == "2")
+            role = static_cast<Roles>(std::stoi(roleInput));
+        else if(roleInput == "admin" || roleInput == "Admin")
+            role = Roles::AdminRole;
+        else
+            role = Roles::UserRole;
 
         std::cout << "Process add..." << std::endl;
         std::map<std::string, std::string> *response = client.Registration(login, password, role);
@@ -347,14 +432,14 @@ Step DeleteMenu()
         if (user.role == Roles::AdminRole)
             std::cin >> login;
         else
-            user.login;
+            login = user.login;
     }
 
     while (true)
     {
         if (login == "0")
         {
-            return Step::Start;
+            return Step::StartStep;
         }
 
         std::cout << "Process delete..." << std::endl;
@@ -371,7 +456,7 @@ Step DeleteMenu()
                 delete response;
             if (user.login == login)
             {
-                return Step::Start;
+                return Step::StartStep;
             }
             else
             {
@@ -390,7 +475,7 @@ Step DeleteMenu()
 
 int main()
 {
-    Step step = Start;
+    Step step = StartStep;
     while (step != Exit)
     {
         system("clear");
@@ -398,7 +483,7 @@ int main()
         {
             switch (step)
             {
-            case Start:
+            case StartStep:
                 user.login = "";
                 user.password = "";
                 step = StartMenu();
@@ -411,12 +496,17 @@ int main()
                 break;
             case UserStep:
                 step = UserMenu();
+                endwin();
+                refresh();
                 break;
             case AdminStep:
                 step = AdminMenu();
                 break;
             case ChangeUserData:
                 step = ChangeUserMenu();
+                break;
+            case ChangeUserScore:
+                step = ChangeScoreMenu();
                 break;
             case AddNewUser:
                 step = AddNewUserMenu();
@@ -425,14 +515,14 @@ int main()
                 step = DeleteMenu();
                 break;
             default:
-                step = Start;
+                step = StartStep;
                 break;
             }
         }
         catch (std::exception& ex)
         {
             std::cout << ex.what() << std::endl;
-            step = Start;
+            step = StartStep;
         }
     }
 
