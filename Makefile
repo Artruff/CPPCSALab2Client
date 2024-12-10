@@ -12,6 +12,7 @@ all: clean CPPCSALab2Client Test
 
 CPPCSALab2Client: CPPCSALab2Client.o MyClient.o
 	mkdir -p $(OUTDIR)
+	mkdir -p $(PACKAGEDIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(OUTDIR)CPPCSALab2Client CPPCSALab2Client.o MyClient.o $(LIBS)
 	cp $(OUTDIR)CPPCSALab2Client $(PACKAGEDIR)CPPCSALab2Client
 
