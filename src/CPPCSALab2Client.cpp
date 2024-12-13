@@ -1,7 +1,6 @@
 ﻿#include "MyClient.cpp"
 #include <iostream>
 #include <string>
-
 enum Step
 {
     Start,
@@ -21,6 +20,7 @@ MyClient client;
 
 Step StartMenu()
 {
+    std::cout << "Time: " << client.GetServerTime() << std::endl;
     std::cout << "Select an action:" << std::endl;
     std::cout << "1. Authorization" << std::endl;
     std::cout << "2. Registration" << std::endl;
@@ -71,7 +71,7 @@ Step AuthorizationMenu()
         std::cout << "Process authorization..." << std::endl;
         std::map<std::string, std::string> *response = client.Authorization(login, password);
 
-        if (response!=nullptr && response->count("key") > 0)
+        if (response != nullptr && response->count("key") > 0)
         {
             key = (*response)["key"];
             user.login = login;
@@ -96,7 +96,7 @@ Step AuthorizationMenu()
         {
             std::cout << (*response)["message"] << std::endl;
         }
-        if(response != nullptr)
+        if (response != nullptr)
             delete response;
     }
 }
@@ -121,7 +121,7 @@ Step RegistrationMenu()
         std::cin >> password;
 
         std::cout << "Process registration..." << std::endl;
-        std::map<std::string, std::string>* response = client.Registration(login, password);
+        std::map<std::string, std::string> *response = client.Registration(login, password);
 
         if (response != nullptr && response->count("message") > 0)
         {
@@ -146,6 +146,7 @@ Step RegistrationMenu()
 
 Step UserMenu()
 {
+    std::cout << "Time: " << client.GetServerTime() << std::endl;
     std::cout << "User: " << user.login << std::endl;
     std::cout << "1. Change user data" << std::endl;
     std::cout << "2. Delete user data" << std::endl;
@@ -177,6 +178,7 @@ Step UserMenu()
 
 Step AdminMenu()
 {
+    std::cout << "Time: " << client.GetServerTime() << std::endl;
     std::cout << "Admin: " << user.login << std::endl;
     std::cout << "1. All users" << std::endl;
     std::cout << "2. Change users" << std::endl;
@@ -194,13 +196,13 @@ Step AdminMenu()
             return Step::Start;
         }
 
-        if(input == "1")
+        if (input == "1")
         {
-            std::vector<User>* response = client.AllUsers(key);
+            std::vector<User> *response = client.AllUsers(key);
 
             if (response != nullptr && !response->empty())
             {
-                for (const User& user : (*response))
+                for (const User &user : (*response))
                 {
                     std::cout << user.login << " " << user.password << " " << user.role << std::endl;
                 }
@@ -208,7 +210,7 @@ Step AdminMenu()
             if (response != nullptr)
                 delete response;
         }
-        else if(input == "2")
+        else if (input == "2")
             return Step::ChangeUserData;
         else if (input == "3")
             return Step::AddNewUser;
@@ -269,7 +271,7 @@ Step ChangeUserMenu()
         std::cin >> new_password;
 
         std::cout << "Process change..." << std::endl;
-        std::map<std::string, std::string>* response = client.ChangeUserData(key, old_login, new_login, new_password);
+        std::map<std::string, std::string> *response = client.ChangeUserData(key, old_login, new_login, new_password);
 
         if (response != nullptr && response->count("message") > 0)
         {
@@ -360,7 +362,7 @@ Step DeleteMenu()
         std::cout << "Process delete..." << std::endl;
         std::map<std::string, std::string> *response = client.Delete(key, login);
 
-        if ( response != nullptr && response->count("message") > 0)
+        if (response != nullptr && response->count("message") > 0)
         {
             std::cout << "Invalid login. Please try again." << std::endl;
             std::cout << (*response)["message"] << std::endl;
@@ -429,7 +431,7 @@ int main()
                 break;
             }
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             std::cout << ex.what() << std::endl;
             step = Start;
